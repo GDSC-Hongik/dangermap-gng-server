@@ -158,3 +158,11 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Firebase Firestore Settings
+import firebase_admin
+from firebase_admin import credentials
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate('adminsdk.json') 
+    firebase_admin.initialize_app(cred)
