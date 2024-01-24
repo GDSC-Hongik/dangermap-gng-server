@@ -1,6 +1,9 @@
 import firebase_admin
 from firebase_admin import firestore 
-from django.utils import timezone   
+from django.utils import timezone
+# import pytz
+
+# korea_timezone = pytz.timezone('Asia/Seoul')
 
 class FirebaseClient:
 

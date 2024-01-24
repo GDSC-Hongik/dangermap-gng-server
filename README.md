@@ -27,7 +27,8 @@
 - firestore 보안 규칙 재설정
 - 로그인 기능
 - 구글 맵
-- 
+- 위치정보를 나타내는 필드 추가 : 경도, 위도, 위험정보
+
 # 수정 사항
 1. 24.01.13 : 기본 세팅 및 serializer 생성
 2. 24.01.19 : firebase연동, 데이터 모델 생성, post와 user 간단한 GET, POST 기능 추가
@@ -46,8 +47,9 @@ pyenv local danger-map
 pip install django==3.2.23 djangorestframework==3.13.1
 pip install --upgrade firebase-admin
 pip install django-cors-headers
+pip install pytz    # 설치 보류
 ```
-### 1. `adminsdk.json` 파일을 루트 디렉토리에 넣는다.
+### 1. `adminsdk.json` 파일을 루트 디렉토리에 넣는다.(manage.py가 있는 디렉토리)
 ### 2. `python manage.py runserver` 를 통해 서버를 연 후, 필요에 따라 위의 url들을 이용한다.
 
 #### post데이터 추가 시 주의사항
