@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'danger_app',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -138,3 +140,8 @@ from firebase_admin import credentials
 if not firebase_admin._apps:
     cred = credentials.Certificate('adminsdk.json') 
     firebase_admin.initialize_app(cred)
+
+# Cors settings
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
