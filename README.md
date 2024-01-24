@@ -31,10 +31,11 @@
 # 수정 사항
 1. 24.01.13 : 기본 세팅 및 serializer 생성
 2. 24.01.19 : firebase연동, 데이터 모델 생성, post와 user 간단한 GET, POST 기능 추가
+3. 24.01.24 : django-allauth 관련 코드 삭제, cors에러 처리
 
 # 데이터 모델
 ![Alt text](image.png)
-date, like, dislike필드는 
+date, like, dislike필드는 자동으로 설정되나, date필드는 형식에 맞춰 입력은 해야 함.
 # 초기 설정
 ```shell
 pyenv install 3.7.13 # 파이썬 설치
@@ -42,8 +43,9 @@ pyenv virtualenv 3.7.13 danger-map # danger-map 이름의 가상환경 생성
 
 # danger_map 프로젝트 루트 폴더로 이동한 후 가상환경 적용
 pyenv local danger-map
-pip install django==3.2.23 djangoframework==3.13.1
+pip install django==3.2.23 djangorestframework==3.13.1
 pip install --upgrade firebase-admin
+pip install django-cors-headers
 ```
 ### 1. `adminsdk.json` 파일을 루트 디렉토리에 넣는다.
 ### 2. `python manage.py runserver` 를 통해 서버를 연 후, 필요에 따라 위의 url들을 이용한다.
