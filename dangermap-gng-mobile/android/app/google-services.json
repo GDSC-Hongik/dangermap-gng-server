@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "46052954576",
+    "firebase_url": "https://easylogin-d567a-default-rtdb.firebaseio.com",
+    "project_id": "easylogin-d567a",
+    "storage_bucket": "easylogin-d567a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:46052954576:android:a063c3a7be74124772a9d5",
+        "android_client_info": {
+          "package_name": "com.test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "46052954576-ei0nurvmfe6nbv1vnkiqt9i8p55f5rfq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.test",
+            "certificate_hash": "562d31686403dfec2a1fa2dd8646852a301c69c0"
+          }
+        },
+        {
+          "client_id": "46052954576-pq6859lajcmttoajnrkj2sbp00n8s04o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu_ITa1hCgUsKjsnjTlt3_SqMltOjw1tY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "46052954576-pq6859lajcmttoajnrkj2sbp00n8s04o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
