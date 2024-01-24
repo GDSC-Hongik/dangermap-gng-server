@@ -67,3 +67,5 @@ pip install pytz    # 설치 보류
 - like, dislike 필드 : GET요청을 통해 정보를 가져올 때마다 각각의 컬렉션에 들어있는 문서 개수를 카운트 해서 업데이트 된다.\
 또한 `posts/post_title/like`로 이동할 시 별도의 데이터 입력 없이 `POST`만 해도 임의의 데이터가 추가된다.
 - danger_rate 필드 : integer필드로 큰따옴표 없이 0~100 사이의 숫자만 넣을 수 있도록 한다.
+
+브랜치 테스트
