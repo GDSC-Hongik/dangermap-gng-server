@@ -18,16 +18,20 @@
 |---|-----------|----|----|
 |`users`|GET|모든 유저 리스트를 가져온다|
 |`users/<user_email>`|GET|해당 이메일을 가진 유저를 가져온다|해당 프로젝트에선 이메일이 pk로 쓰임|
+|`users/profile/<str:pk>/<str:url>`|PATCH, DELETE|해당 이메일의 유저 프로필 사진 수정 및 삭제
 |`posts`|GET, POST|모든 게시물 리스트를 가져온다|
 |`posts/<post_title>`|GET|해당 제목을 가진 모든 게시물을 가져온다|아직 중복된 제목에 대한 처리구현 X
 |`posts/<post_title>/like`|GET, POST|좋아요를 누른 사람을 조회하고, 임의로 좋아요를 추가할 수 있다.|임시 데이터 추가기능 삭제 필요
 |`posts/<post_title>/dislike`|GET, POST|싫어요를 누른 사람을 조회하고, 임의로 싫어요를 추가할 수 있다.|임시 데이터 추가기능 삭제 필요
+|`posts/<post_title>/comments`|GET|게시글의 댓글들을 가져온다|미구현|
+
 
 # 추가 및 수정해야 할 기능들
 - firestore 보안 규칙 재설정
 - 로그인 기능
 - 구글 맵
 - 위치정보를 나타내는 필드 추가 : 경도, 위도, 위험정보
+- storage 연동
 
 # 수정 사항
 1. 24.01.13 : 기본 세팅 및 serializer 생성
@@ -37,6 +41,7 @@
 # 데이터 모델
 ![Alt text](image.png)
 date, like, dislike필드는 자동으로 설정되나, date필드는 형식에 맞춰 입력은 해야 함.
+
 # 초기 설정
 ```shell
 pyenv install 3.7.13 # 파이썬 설치

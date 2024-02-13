@@ -11,7 +11,8 @@ class UserSerializer(serializers.Serializer):
     profile_pic = serializers.URLField()
 
 
-# storage등록 후 content_pic URLField로 바꿔야 함
+# storage연동 후 content_pic URLField로 바꿔야 함
+# user_email에 관한 유효성 검사 추가?
 class PostSerializer(serializers.Serializer):
     content = serializers.CharField()
     content_pic = serializers.CharField()

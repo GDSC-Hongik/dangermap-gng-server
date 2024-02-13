@@ -136,12 +136,19 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Firebase Firestore Settings
 import firebase_admin
 from firebase_admin import credentials
+from firebase_admin import storage
 
 if not firebase_admin._apps:
     cred = credentials.Certificate('adminsdk.json') 
-    firebase_admin.initialize_app(cred)
+    firebase_admin.initialize_app(cred, {
+    'storageBucket': 'easylogin-d567a.appspot.com'
+    })
 
 # Cors settings
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
+
+# storage 연동
+# 공식문서 : https://firebase.google.com/docs/storage/admin/start?authuser=0&hl=ko
+# https://medium.com/@abdelhedihlel/upload-files-to-firebase-storage-using-python-782213060064
