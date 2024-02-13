@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import firestore 
+from firebase_admin import firestore, auth
 from django.utils import timezone
 # import pytz
 
@@ -104,6 +104,71 @@ class FirebaseClient:
         dislike_docs = doc_reference.collection("dislike").stream()
         return [doc.to_dict() for doc in dislike_docs]
     
+
+    # 유저 프로필 처리
+    def get_profile_pic(self, user_email):
+        docs = self._user_collection.where("email", "==", user_email).limit(1).get()
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return None
+        
+        doc_id = None
+        for doc in docs:
+            return doc.get("profile_pic")
+
+
+    def patch_profile_pic(self, user_email, pic_url):
+        docs = self._user_collection.where("email", "==", user_email).limit(1).get()
+
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return None
+        
+        doc_id = None
+        for doc in docs:
+            doc_id = doc.id
+
+            new_doc_ref = self._user_collection.add({
+                'email': doc.get('email'),
+                'nickname': doc.get('nickname'),
+                'profile_pic': pic_url
+            })
+        new_doc_id = new_doc_ref.id
+        
+        if doc_id:
+            self._user_collection.document(doc_id).delete()
+
+
+    def update_user_profile_pic(uid, new_pic):
+        try:
+            # 사용자 정보 가져오기
+            user = auth.get_user(uid)
+            
+            # 새 이메일로 사용자 업데이트
+            updated_user = auth.update_user(
+                user.uid,
+                profile_pic=new_pic
+            )
+            
+            print('User email updated successfully:', updated_user.email)
+        except auth.AuthError as e:
+            print('Error updating user email:', e)
+
+        
+    def delete_user_profile(self):
+        docs = self._user_collection.where("email", "==", user_email).limit(1).get()
+
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return None
+        
+        doc_id = None
+        for doc in docs:
+            doc_id = doc.id
+
+        if doc_id:
+            self._user_collection.document(doc_id).delete()
+
 
 # 더미 데이터 추가용이므로 나중에 삭제해야함
     def add_like(self, post_title):

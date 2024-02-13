@@ -2,10 +2,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .firebase_client import FirebaseClient
+from .storage_bucket import StorageBucket
 from .serializers import UserSerializer, PostSerializer, LikeAndDislikeSerializer
 from datetime import datetime
 
 client = FirebaseClient()
+bucket = StorageBucket()
 
 # root = user collection
 @api_view(['GET'])
@@ -48,6 +50,8 @@ def get_post(request, pk):
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
+
+# like and dislike
 @api_view(['GET', 'POST'])
 def add_like(request, pk):
     if request.method == 'GET':
@@ -58,6 +62,7 @@ def add_like(request, pk):
         client.add_like(post_title=pk)
         return Response(status=status.HTTP_201_CREATED)
 
+
 @api_view(['GET', 'POST'])
 def add_dislike(request, pk):
     if request.method == 'GET':
@@ -67,3 +72,20 @@ def add_dislike(request, pk):
     elif request.method == 'POST':
         client.add_dislike(post_title=pk)
         return Response(status=status.HTTP_201_CREATED)
+    
+
+# user profile
+@api_view(['PATCH', 'DELETE'])
+def user_profile(request, pk, pic_url):
+    if request.method == 'PATCH':
+        old_pic = client.get_profile_pic(pk)
+        client.update_user_profile_pic(pk, pic_url)
+        # client.patch_profile_pic(pk, pic_url)
+        bucket.delete_file(old_pic)
+        return Response(status=status.HTTP_200_OK)
+
+    if request.method == 'DELETE':
+        old_pic = client.get_profile_pic(pk)
+        bucket.delete_file(old_pic)
+        client.delete_user_profile()
+        return Response(status=status.HTTP_200_OK)
