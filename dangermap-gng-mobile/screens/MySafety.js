@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import React, {useState} from 'react'
+import {useNavigation} from '@react-navigation/native'
 
 import {
   View,
@@ -8,13 +8,9 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-} from 'react-native';
+} from 'react-native'
 
 export default function MySafety({navigation}) {
-  const [password, setPassword] = useState('');
-  const [password2, setPassword2] = useState('');
-  const [nickname, setNickname] = useState('');
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -24,7 +20,7 @@ export default function MySafety({navigation}) {
         <Text>안전정보</Text>
       </TouchableOpacity>
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -65,4 +61,4 @@ const styles = StyleSheet.create({
     marginRight: 10,
     fontSize: 15,
   },
-});
+})
