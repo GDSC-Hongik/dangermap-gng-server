@@ -15,12 +15,16 @@ class UserSerializer(serializers.Serializer):
 # user_email에 관한 유효성 검사 추가?
 class PostSerializer(serializers.Serializer):
     content = serializers.CharField()
-    content_pic = serializers.CharField()
+    content_pics = serializers.ListField(child=serializers.CharField(), min_length=1, max_length=3, allow_empty=True)
     danger_rate = serializers.IntegerField(max_value=100, min_value=0)
-    title = serializers.CharField()
+    danger_type = serializers.CharField()
     date = serializers.DateTimeField()
     user_nickname = serializers.CharField()
     user_email = serializers.CharField()
+    # 위치 정보
+    location = serializers.CharField()
+    lat = serializers.FloatField()
+    lng = serializers.FloatField()
 
 
 # like, dislike 문서 추가를 위한 임시 시리얼라이저
