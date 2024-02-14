@@ -12,6 +12,6 @@ urlpatterns = [
     path('posts/<str:type>', get_post), # danger_type을 type으로 받음
 
     # 좋아요, 싫어요 개수 추가. 아무 데이터도 입력할 필요 없이 POST요청만 보내면 됨
-    path('posts/<str:pk>/like', add_like),
-    path('posts/<str:pk>/dislike', add_dislike),
+    path('posts/<str:date>/like', add_like),
+    path('posts/<str:date>/dislike', add_dislike),
 ]
