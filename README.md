@@ -18,7 +18,7 @@
 |---|-----------|----|----|
 |`users`|GET|모든 유저 리스트를 가져온다|
 |`users/<user_email>`|GET|해당 이메일을 가진 유저를 가져온다|해당 프로젝트에선 이메일이 pk로 쓰임|
-|`users/profile/<str:pk>/<str:url>`|PATCH, DELETE|해당 이메일의 유저 프로필 사진 수정 및 삭제
+|`users/profile-pic/<str:pk>/<str:url>`|PATCH, DELETE|해당 이메일의 유저 프로필 사진 수정 및 삭제
 |`posts`|GET, POST|모든 게시물 리스트를 가져온다|
 |`posts/<post_title>`|GET|해당 제목을 가진 모든 게시물을 가져온다|아직 중복된 제목에 대한 처리구현 X
 |`posts/<post_title>/like`|GET, POST|좋아요를 누른 사람을 조회하고, 임의로 좋아요를 추가할 수 있다.|임시 데이터 추가기능 삭제 필요
@@ -59,16 +59,21 @@ pip install pytz    # 설치 보류
 
 #### post데이터 추가 시 주의사항
     {
-        "content": "content6",
-        "date": "2024-01-10T14:43:02.979000Z",
-        "user_email": "ex02@gmail.com",
-        "content_pic": "url/url",
-        "user_nickname": "ex02",
-        "title": "title6",
-        "danger_rate": 70
+        "user_email": "ex01@gmail.com",
+        "date": "2024-02-13T22:53:17.298000Z",
+        "content": "content01",
+        "content_pics": ["pic_url/pic_url01", "pic_url/pic_url02"],
+        "user_nickname": "ex01",
+        "danger_type": "ice",
+        "lat": 53.42,
+        "lng": -32.112,
+        "location": "홍문관 앞",
+        "danger_rate": 50
     }
 위의 형식으로 POST하도록 한다.
 - date 필드 : 현재시간으로 대체되지만 timestamp형식에 맞는 값을 넣어야 한다.
 - like, dislike 필드 : GET요청을 통해 정보를 가져올 때마다 각각의 컬렉션에 들어있는 문서 개수를 카운트 해서 업데이트 된다.\
 또한 `posts/post_title/like`로 이동할 시 별도의 데이터 입력 없이 `POST`만 해도 임의의 데이터가 추가된다.
 - danger_rate 필드 : integer필드로 큰따옴표 없이 0~100 사이의 숫자만 넣을 수 있도록 한다.
+- lat 필드 : -90 ~ 90 사이의 값
+- lng 필드 : -180 ~ 180 사이의 값
