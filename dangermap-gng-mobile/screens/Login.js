@@ -1,10 +1,16 @@
-// import * as Location from 'expo-location';
-// import {StatusBar} from 'expo-status-bar';
-import React, {useEffect, useState} from 'react';
-import SignUp from './SignUp.js';
-import SearchPW from './SearchPW';
+import React, {useEffect, useState} from 'react'
+import SignUp from './SignUp.js'
+import SearchPW from './SearchPW'
+import auth from '@react-native-firebase/auth'
+import firestore from '@react-native-firebase/firestore'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+} from '@react-native-google-signin/google-signin'
 
 import {
+  Image,
   View,
   Text,
   StyleSheet,
@@ -13,107 +19,123 @@ import {
   ActivityIndicator,
   TextInput,
   TouchableOpacity,
-} from 'react-native';
+  Alert,
+} from 'react-native'
 
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-} from '@react-native-google-signin/google-signin';
-
-useEffect(() => {
-  GoogleSignin.configure({
-    webClientId: googleWebClientId,
-  });
-}, []);
-
-// 로그인 구현
-const onSignIn = async () => {
+const saveToken = async token => {
   try {
-    const {user} = await signIn({email, password});
-    const userCollection = firestore().collection('users');
-    console.log((await userCollection.doc(user.uid).get()).data());
-    await userCollection.doc(user.uid).update({displayName}); // 데이터 업데이트
-    console.log((await userCollection.doc(user.uid).get()).data());
-    Alert.alert('로그인 성공');
-  } catch (e) {
-    Alert.alert('로그인 실패');
+    await AsyncStorage.setItem('userToken', token)
+  } catch (error) {
+    console.error('토큰 저장 오류:', error.message)
   }
-};
-
-const onPressGoogleBtn = async () => {
-  await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-  const {idToken} = await GoogleSignin.signIn();
-  console.log('idToekn : ', idToken);
-  if (idToken) {
-    setIdToken(idToken);
-  }
-  const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-  const res = await auth().signInWithCredential(googleCredential);
-};
-
-return (
-  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-    <Text>{idToken}</Text>
-    <GoogleSigninButton onPress={onPressGoogleBtn} />
-  </View>
-);
+}
 
 export default function Login({navigation}) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorText, setErrorText] = useState('');
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [logged, setLogged] = useState(false)
 
-  const handleSubmitPress = () => {
-    setErrorText('');
-    if (!email) {
-      alert('이메일을 입력하세요.');
-      return;
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: `46052954576-pq6859lajcmttoajnrkj2sbp00n8s04o.apps.googleusercontent.com`,
+    })
+  }, [])
+
+  const signIn = async () => {
+    try {
+      // 1. Firebase Authentication을 사용하여 로그인
+      await auth().signInWithEmailAndPassword(email, password)
+
+      const userToken = await auth().currentUser.getIdToken()
+
+      if (userToken) {
+        await saveToken(userToken)
+        setLogged(true)
+        Alert.alert('로그인 성공', '성공적으로 로그인되었습니다.')
+        navigation.navigate('Home')
+      }
+    } catch (error) {
+      Alert.alert('로그인 오류', '아이디 또는 비밀번호를 확인해주세요.')
     }
-    if (!password) {
-      alert('비밀번호를 입력하세요.');
-      return;
+  }
+
+  const onPressGoogleBtn = async () => {
+    await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true})
+    const {idToken} = await GoogleSignin.signIn()
+    console.log('idToekn : ', idToken)
+    if (idToken) {
+      setIdToken(idToken)
     }
-  };
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken)
+    const res = await auth().signInWithCredential(googleCredential)
+  }
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.text}>로그인</Text>
       </View>
-      <TextInput
-        placeholder={'이메일 입력'}
-        style={styles.input}
-        autoCapitalize="none"
-        value={email}
-        onChangeText={text => setEmail(text)}></TextInput>
-      <TextInput
-        placeholder={'비밀번호 입력'}
-        style={styles.input}
-        autoCapitalize="none"
-        value={password}
-        onChangeText={text => setPassword(text)}></TextInput>
-      <View style={styles.IdPw}>
+      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+        <TextInput
+          placeholder={'이메일'}
+          style={styles.input}
+          autoCapitalize="none"
+          value={email}
+          onChangeText={text => setEmail(text)}></TextInput>
+        <TextInput
+          placeholder={'비밀번호'}
+          style={styles.input}
+          secureTextEntry
+          autoCapitalize="none"
+          value={password}
+          onChangeText={text => setPassword(text)}></TextInput>
+      </View>
+      <View style={styles.search}>
         <TouchableOpacity onPress={() => navigation.navigate('SearchPW')}>
-          <Text style={styles.searchPW}>비밀번호 찾기</Text>
+          <Text>비밀번호 찾기</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={styles.loginBtn}
-        activeOpacity={0.8}
-        onPress={handleSubmitPress}>
-        <Text>로그인</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.loginBtn} activeOpacity={0.8}>
-        <Text>Google</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.loginBtn}
-        activeOpacity={0.8}
-        onPress={() => navigation.navigate('SignUp')}>
-        <Text>회원가입</Text>
-      </TouchableOpacity>
+      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+        <TouchableOpacity
+          style={styles.loginBtn}
+          activeOpacity={0.8}
+          onPress={signIn}>
+          <Text style={{color: '#ffffff', fontSize: 16}}>로그인</Text>
+        </TouchableOpacity>
+        <View style={styles.sectionLine} />
+        <TouchableOpacity
+          style={styles.google}
+          activeOpacity={0.8}
+          onPress={onPressGoogleBtn}>
+          <Image
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: 150,
+              overflow: 'hidden',
+              borderWidth: 3,
+            }}
+            source={require('../resource/Images/Icons/Google1.png')}
+          />
+        </TouchableOpacity>
+      </View>
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          FlexDirection: 'row',
+        }}>
+        <Text>아직 회원이 아니신가요?</Text>
+        <TouchableOpacity
+          style={styles.register}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('SignUp')}>
+          <Text style={{color: '#326CF9'}}>회원가입</Text>
+        </TouchableOpacity>
+      </View>
+      <View></View>
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -127,61 +149,61 @@ const styles = StyleSheet.create({
   text: {
     flex: 0.4,
     marginTop: 20,
+    marginBottom: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 25,
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#000000',
   },
   input: {
     flex: 0.05,
-    backgroundColor: '#CEE4F8',
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DADADA',
+    borderRadius: 5,
     marginTop: 20,
-    alignItems: 'center',
     fontSize: 15,
+    width: 380,
+    height: 60,
+  },
+  search: {
+    flex: 0.3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    paddingVertical: 15,
+    paddingHorizontal: 13,
   },
   loginBtn: {
     flex: 0.05,
-    backgroundColor: '#81A0F7',
+    backgroundColor: '#326CF9',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 20,
     paddingHorizontal: 20,
-    borderRadius: 10,
+    borderRadius: 5,
     marginTop: 30,
     marginLeft: 10,
     marginRight: 10,
     fontSize: 15,
+    width: 380,
+    height: 60,
   },
-  searchId: {
-    flex: 0.3,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    marginTop: 20,
-    marginLeft: 180,
-    marginRight: 10,
-  },
-  searchPW: {
-    flex: 0.3,
-    paddingVertical: 15,
-    paddingHorizontal: 13,
-    marginTop: 20,
-    marginLeft: 0,
-    marginRight: 90,
-  },
-  IdPw: {
-    flex: 0.3,
-    flexDirection: 'row',
-  },
-  sign: {
-    flex: 0.5,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    marginTop: 20,
-    marginLeft: 180,
-    marginRight: 10,
+  sectionLine: {
+    display: 'flex',
     alignItems: 'center',
-    fontSize: 15,
+    justifyContent: 'center',
+    borderTopWidth: 1,
+    borderColor: '#DADADA',
+    width: 380,
+    marginTop: 40,
   },
-});
+  google: {
+    paddingTop: 30,
+    paddingBottom: 40,
+  },
+  register: {flex: 0.05, paddingBottom: 50},
+})

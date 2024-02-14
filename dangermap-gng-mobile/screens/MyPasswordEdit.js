@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import {updatePassword} from 'firebase/auth';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import storage from '@react-native-firebase/storage';
 import {
   View,
   Text,
@@ -10,59 +11,52 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 
-export default function SearchPW({navigation}) {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+export default function SignUp({navigation}) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
 
-  const resetUserPassword = async () => {
+  const changePassword = async () => {
+    const user = auth().currentUser;
     try {
-      const user = auth().currentUser; // Access the user property directly
-      // Now you can use the 'user' object as needed
-      const uid = user.uid;
-      // 2. Firestore에서 해당 유저의 정보 가져오기
-      const userDoc = await firestore().collection('user').doc(uid).get();
-      const userData = userDoc.data();
-      // 3. userData를 기반으로 필요한 작업 수행
-      if (userData) {
-        const userEmail = userData.email;
-        setEmail(userEmail);
+      if (newPassword === newPasswordConfirm) {
+        await user.updatePassword(newPassword);
+        navigation.navigate('MyPage');
       }
-      await auth().sendPasswordResetEmail(email);
-      setSubmitted(true);
-      setError('');
-      navigation.navigate('Login');
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        setError('User not found');
-      } else {
-        setError('There was a problem with your request');
-      }
+      Alert('비밀번호가 다릅니다.');
+      console.log('에러: ', error.message);
     }
   };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.text}>비밀번호 찾기</Text>
-        <Text>입력한 이메일로 비밀번호 재설정 주소가 전송됩니다.</Text>
+        <Text style={styles.text}>비밀번호 변경</Text>
       </View>
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
         <TextInput
-          placeholder={'가입 시 사용한 이메일을 입력하세요.'}
+          placeholder={'새로운 비밀번호 입력'}
           style={styles.input}
           autoCapitalize="none"
-          value={email}
-          onChangeText={text => setEmail(text)}></TextInput>
+          secureTextEntry
+          value={newPassword}
+          onChangeText={text => setNewPassword(text)}></TextInput>
+        <TextInput
+          placeholder={'새로운 비밀번호 확인'}
+          style={styles.input}
+          autoCapitalize="none"
+          secureTextEntry
+          value={newPasswordConfirm}
+          onChangeText={text => setNewPasswordConfirm(text)}></TextInput>
         <TouchableOpacity
           style={styles.Btn}
-          activeOpacity={0.8}
-          onPress={resetUserPassword}>
-          <Text style={{color: '#ffffff', fontSize: 16}}>
-            비밀번호 재설정하기
-          </Text>
+          activeOpacity={0.5}
+          onPress={changePassword}>
+          <Text style={{color: '#ffffff', fontSize: 16}}>비밀번호 확인</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -107,7 +101,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 5,
-    marginTop: 30,
+    marginTop: 50,
     marginBottom: 80,
     marginLeft: 10,
     marginRight: 10,
