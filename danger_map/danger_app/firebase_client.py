@@ -69,8 +69,8 @@ class FirebaseClient:
         self._post_collection.document(doc_id).update(update_data)
 
 
-    def get_post(self, post_title):
-        docs = self._post_collection.where("title", "==", post_title).stream()
+    def get_post(self, danger_type):
+        docs = self._post_collection.where("danger_type", "==", danger_type).stream()
         if not docs:
             # 해당하는 문서가 없을 경우 처리
             return []
@@ -155,7 +155,7 @@ class FirebaseClient:
             print('Error updating user email:', e)
 
         
-    def delete_user_profile(self):
+    def delete_user_profile(self, user_email):
         docs = self._user_collection.where("email", "==", user_email).limit(1).get()
 
         if not docs:
@@ -171,9 +171,9 @@ class FirebaseClient:
 
 
 # 더미 데이터 추가용이므로 나중에 삭제해야함
-    def add_like(self, post_title):
-        temp_data = {"user_email":"dummy"}
-        docs = self._post_collection.where("title", "==", post_title).limit(1).get()
+    def add_like(self, email):
+        temp_data = {"user_email":email}
+        docs = self._post_collection.where("title", "==", email).limit(1).get()
         if not docs:
             # 해당하는 문서가 없을 경우 처리
             return []

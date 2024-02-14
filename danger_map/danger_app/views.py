@@ -42,8 +42,8 @@ def get_post_list(request):
 
 
 @api_view(['GET'])
-def get_post(request, pk):
-    posts = client.get_post(post_title=pk)
+def get_post(request, type):
+    posts = client.get_post(danger_type=type)
     if posts:
         # serializer=PostSerializer(posts, many=True)
         return Response(posts, status=status.HTTP_200_OK)
@@ -59,7 +59,7 @@ def add_like(request, pk):
         return Response(likes, status=status.HTTP_200_OK)
     
     elif request.method == 'POST':
-        client.add_like(post_title=pk)
+        client.add_like(email=pk)
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -76,7 +76,7 @@ def add_dislike(request, pk):
 
 # user profile
 @api_view(['PATCH', 'DELETE'])
-def user_profile(request, pk, pic_url):
+def user_profile_pic(request, pk, pic_url):
     if request.method == 'PATCH':
         old_pic = client.get_profile_pic(pk)
         client.update_user_profile_pic(pk, pic_url)
@@ -87,5 +87,5 @@ def user_profile(request, pk, pic_url):
     if request.method == 'DELETE':
         old_pic = client.get_profile_pic(pk)
         bucket.delete_file(old_pic)
-        client.delete_user_profile()
+        client.delete_user_profile(pk)
         return Response(status=status.HTTP_200_OK)
