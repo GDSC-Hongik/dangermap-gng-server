@@ -82,6 +82,19 @@ class FirebaseClient:
                 "dislike":self.count_dislike(doc)
             } for doc in docs]
     
+    
+    def get_post_by_email(self, user_email):
+        docs = self._post_collection.where("user_email", "==", user_email).stream()
+        if not docs:
+            return []
+        
+        return [
+            {
+                **doc.to_dict(), 
+                "like":self.count_like(doc), 
+                "dislike":self.count_dislike(doc)
+            } for doc in docs]
+    
 
     def get_all_likes(self, date):
         docs = self._post_collection.where("date", "==", date).limit(1).get()

@@ -21,6 +21,7 @@
 |`users/profile-pic/<str:pk>/<str:url>`|PATCH, DELETE|해당 이메일의 유저 프로필 사진 수정 및 삭제
 |`posts`|GET, POST|모든 게시물 리스트를 가져온다|
 |`posts/<post_title>`|GET|해당 제목을 가진 모든 게시물을 가져온다|아직 중복된 제목에 대한 처리구현 X
+|`posts/email/?user_email={user_email}`|GET|해당 이메일로 작성된 모든 게시글을 가져온다.
 |`posts/<post_title>/like`|GET, POST|좋아요를 누른 사람을 조회하고, 임의로 좋아요를 추가할 수 있다.|임시 데이터 추가기능 삭제 필요
 |`posts/<post_title>/dislike`|GET, POST|싫어요를 누른 사람을 조회하고, 임의로 싫어요를 추가할 수 있다.|임시 데이터 추가기능 삭제 필요
 |`posts/<post_title>/comments`|GET|게시글의 댓글들을 가져온다|미구현|

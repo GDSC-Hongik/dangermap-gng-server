@@ -51,6 +51,17 @@ def get_post(request, type):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
 
+@api_view(['GET'])
+def get_post_by_email(request):
+    user_email = request.GET.get('user_email')
+    posts = client.get_post_by_email(user_email)
+    if posts:
+        # serializer=PostSerializer(posts, many=True)
+        return Response(posts, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    
 # like and dislike
 @api_view(['GET', 'POST'])
 def add_like(request, date):
