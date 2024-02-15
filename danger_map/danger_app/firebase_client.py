@@ -82,9 +82,22 @@ class FirebaseClient:
                 "dislike":self.count_dislike(doc)
             } for doc in docs]
     
+    
+    def get_post_by_email(self, user_email):
+        docs = self._post_collection.where("user_email", "==", user_email).stream()
+        if not docs:
+            return []
+        
+        return [
+            {
+                **doc.to_dict(), 
+                "like":self.count_like(doc), 
+                "dislike":self.count_dislike(doc)
+            } for doc in docs]
+    
 
-    def get_all_likes(self, post_title):
-        docs = self._post_collection.where("title", "==", post_title).limit(1).get()
+    def get_all_likes(self, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
         if not docs:
             # 해당하는 문서가 없을 경우 처리
             return []
@@ -94,8 +107,8 @@ class FirebaseClient:
         return [doc.to_dict() for doc in like_docs]
 
 
-    def get_all_dislikes(self, post_title):
-        docs = self._post_collection.where("title", "==", post_title).limit(1).get()
+    def get_all_dislikes(self, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
         if not docs:
             # 해당하는 문서가 없을 경우 처리
             return []
@@ -171,15 +184,14 @@ class FirebaseClient:
 
 
 # 더미 데이터 추가용이므로 나중에 삭제해야함
-    def add_like(self, email):
-        temp_data = {"user_email":email}
-        docs = self._post_collection.where("title", "==", email).limit(1).get()
+    def add_like(self, data, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
         if not docs:
             # 해당하는 문서가 없을 경우 처리
             return []
         
         doc_reference = docs[0].reference
-        doc_reference.collection("like").add(temp_data)
+        doc_reference.collection("like").add(data)
     
     def add_dislike(self, post_title):
         temp_data = {"user_email":"dummy"}
