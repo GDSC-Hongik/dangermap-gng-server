@@ -83,6 +83,20 @@ class FirebaseClient:
             } for doc in docs]
     
     
+    def get_post_dates_by_email(self, user_email):
+        docs = self._post_collection.where("user_email", "==", user_email).stream()
+        if not docs:
+            return []
+        
+        post_dates = []
+        for doc in docs:
+            post_data = doc.to_dict()
+            if 'date' in post_data:
+                post_dates.append(post_data['date'])
+        
+        return {'date': post_dates}
+    
+
     def get_post_by_email(self, user_email):
         docs = self._post_collection.where("user_email", "==", user_email).stream()
         if not docs:
@@ -94,28 +108,6 @@ class FirebaseClient:
                 "like":self.count_like(doc), 
                 "dislike":self.count_dislike(doc)
             } for doc in docs]
-    
-
-    def get_all_likes(self, date):
-        docs = self._post_collection.where("date", "==", date).limit(1).get()
-        if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return []
-        
-        doc_reference = docs[0].reference
-        like_docs = doc_reference.collection("like").stream()
-        return [doc.to_dict() for doc in like_docs]
-
-
-    def get_all_dislikes(self, date):
-        docs = self._post_collection.where("date", "==", date).limit(1).get()
-        if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return []
-        
-        doc_reference = docs[0].reference
-        dislike_docs = doc_reference.collection("dislike").stream()
-        return [doc.to_dict() for doc in dislike_docs]
     
 
     # 유저 프로필 처리
@@ -183,7 +175,29 @@ class FirebaseClient:
             self._user_collection.document(doc_id).delete()
 
 
-# 더미 데이터 추가용이므로 나중에 삭제해야함
+# 좋아요, 싫어요 기능
+    def get_all_likes(self, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return []
+        
+        doc_reference = docs[0].reference
+        like_docs = doc_reference.collection("like").stream()
+        return [doc.to_dict() for doc in like_docs]
+
+
+    def get_all_dislikes(self, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return []
+        
+        doc_reference = docs[0].reference
+        dislike_docs = doc_reference.collection("dislike").stream()
+        return [doc.to_dict() for doc in dislike_docs]
+    
+
     def add_like(self, data, date):
         docs = self._post_collection.where("date", "==", date).limit(1).get()
         if not docs:
@@ -193,12 +207,37 @@ class FirebaseClient:
         doc_reference = docs[0].reference
         doc_reference.collection("like").add(data)
     
-    def add_dislike(self, post_title):
-        temp_data = {"user_email":"dummy"}
-        docs = self._post_collection.where("title", "==", post_title).limit(1).get()
+
+    def add_dislike(self, data, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return []
+
+        doc_reference = docs[0].reference
+        doc_reference.collection("dislike").add(data)
+
+
+# 댓글 기능
+    def get_all_comments(self, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
         if not docs:
             # 해당하는 문서가 없을 경우 처리
             return []
         
         doc_reference = docs[0].reference
-        doc_reference.collection("dislike").add(temp_data)
+        comment_docs = doc_reference.collection("comment").stream()
+        return [doc.to_dict() for doc in comment_docs]
+    
+
+    def add_comment(self, data, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return []
+
+        doc_reference = docs[0].reference
+        new_doc_ref = doc_reference.collection("comment").add(data)
+        doc_id = new_doc_ref[1].id
+        update_data = {'date': timezone.now()}
+        doc_reference.collection("comment").document(doc_id).update(update_data)

@@ -22,9 +22,9 @@
 |`posts`|GET, POST|모든 게시물 리스트를 가져온다|
 |`posts/<post_title>`|GET|해당 제목을 가진 모든 게시물을 가져온다|아직 중복된 제목에 대한 처리구현 X
 |`posts/email/?user_email={user_email}`|GET|해당 이메일로 작성된 모든 게시글을 가져온다.
-|`posts/<post_title>/like`|GET, POST|좋아요를 누른 사람을 조회하고, 임의로 좋아요를 추가할 수 있다.|임시 데이터 추가기능 삭제 필요
-|`posts/<post_title>/dislike`|GET, POST|싫어요를 누른 사람을 조회하고, 임의로 싫어요를 추가할 수 있다.|임시 데이터 추가기능 삭제 필요
-|`posts/<post_title>/comments`|GET|게시글의 댓글들을 가져온다|미구현|
+|`posts/like/?date={date}`|GET, POST|작성날짜를 기준으로 게시글을 가져와 좋아요를 누른 사람을 조회하고, 좋아요를 추가할 수 있다.
+|`posts/dislike/?date={date}`|GET, POST|작성날짜를 기준으로 싫어요를 누른 사람을 조회하고, 싫어요를 추가할 수 있다.
+|`posts/comment/?date={date}`|GET, POST|작성날짜를 기준으로 댓글들을 조회하고, 댓글을 추가할 수 있다.|
 
 
 # 추가 및 수정해야 할 기능들

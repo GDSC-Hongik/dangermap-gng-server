@@ -27,6 +27,13 @@ class PostSerializer(serializers.Serializer):
     lng = serializers.FloatField()
 
 
-# like, dislike 문서 추가를 위한 임시 시리얼라이저
+# like, dislike 문서 추가를 위한 시리얼라이저
 class LikeAndDislikeSerializer(serializers.Serializer):
     user_email = serializers.CharField()
+
+
+# comment 시리얼라이저
+class CommentSerializer(serializers.Serializer):
+    user_email = serializers.CharField()
+    comment = serializers.CharField()
+    date = serializers.DateTimeField()

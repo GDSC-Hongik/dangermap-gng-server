@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .firebase_client import FirebaseClient
 from .storage_bucket import StorageBucket
-from .serializers import UserSerializer, PostSerializer, LikeAndDislikeSerializer
+from .serializers import UserSerializer, PostSerializer, LikeAndDislikeSerializer, CommentSerializer
 from datetime import datetime
 
 client = FirebaseClient()
@@ -64,13 +64,15 @@ def get_post_by_email(request):
     
 # like and dislike
 @api_view(['GET', 'POST'])
-def add_like(request, date):
+def add_like(request):
+    date_str = request.GET.get('date')
+    date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
     if request.method == 'GET':
-        likes = client.get_all_likes(post_title=date)
+        likes = client.get_all_likes(date=date)
         return Response(likes, status=status.HTTP_200_OK)
     
     elif request.method == 'POST':
-        serializer = LikeAndDislikeSerializer(request.data)
+        serializer = LikeAndDislikeSerializer(data=request.data)
         if serializer.is_valid():
             client.add_like(request.data, date)
             return Response(request.data, status=status.HTTP_201_CREATED)
@@ -78,14 +80,19 @@ def add_like(request, date):
 
 
 @api_view(['GET', 'POST'])
-def add_dislike(request, pk):
+def add_dislike(request):
+    date_str = request.GET.get('date')
+    date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
     if request.method == 'GET':
-        dislikes = client.get_all_dislikes(post_title=pk)
+        dislikes = client.get_all_dislikes(date=date)
         return Response(dislikes, status=status.HTTP_200_OK)
     
     elif request.method == 'POST':
-        client.add_dislike(post_title=pk)
-        return Response(status=status.HTTP_201_CREATED)
+        serializer = LikeAndDislikeSerializer(data=request.data)
+        if serializer.is_valid():
+            client.add_dislike(request.data, date)
+            return Response(request.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     
 
 # user profile
@@ -103,3 +110,20 @@ def user_profile_pic(request, pk, pic_url):
         bucket.delete_file(old_pic)
         client.delete_user_profile(pk)
         return Response(status=status.HTTP_200_OK)
+    
+
+# comment
+@api_view(['GET', 'POST'])
+def add_comment(request):
+    date_str = request.GET.get('date')
+    date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    if request.method == 'GET':
+        comments = client.get_all_comments(date=date)
+        return Response(comments, status=status.HTTP_200_OK)
+    
+    elif request.method == 'POST':
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            client.add_comment(request.data, date)
+            return Response(request.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
