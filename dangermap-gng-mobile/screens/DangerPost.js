@@ -8,6 +8,9 @@ import {
   images,
   Image,
   ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
 } from 'react-native'
 import auth from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
@@ -17,7 +20,7 @@ import {launchImageLibrary} from 'react-native-image-picker'
 import {Picker} from '@react-native-picker/picker'
 import {postDangerData} from './api.js'
 
-function Test({navigation}) {
+function DangerPost({navigation}) {
   const [images, setImages] = useState([]) // 사진
   const [content, setContent] = useState('') // 설명
   const [location, setLocation] = useState('') // 위치
@@ -114,17 +117,21 @@ function Test({navigation}) {
   }
 
   return (
-    <View>
+    <ScrollView style={styles.container}>
       <ScrollView horizontal>
         {images.map((image, index) => (
           <Image
+            style={styles.image}
             key={index}
             source={{uri: image.content_pic}}
-            style={{width: 100, height: 100, marginRight: 5}}
           />
         ))}
       </ScrollView>
-      <Button title="사진 추가하기" onPress={onSelectImage} />
+      <View style={styles.section}>
+        <TouchableOpacity style={styles.Btn} onPress={onSelectImage}>
+          <Text style={styles.text}>사진 추가하기</Text>
+        </TouchableOpacity>
+      </View>
       <TextInput
         placeholder="content"
         onChangeText={text => setContent(text)}
@@ -161,10 +168,36 @@ function Test({navigation}) {
         value={location}
       />
       <Button title="안전정보 등록" onPress={postDanger} />
-    </View>
+    </ScrollView>
   )
 }
 
-export default Test
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  image: {flex: 0.3, width: 100, height: 100, marginLeft: 10, marginTop: 20},
+  Btn: {
+    flex: 0.05,
+    width: 150,
+    height: 50,
+    backgroundColor: '#326CF9',
+    marginTop: 10,
+    marginLeft: 10,
+    borderRadius: 5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  section: {
+    flex: 0.3,
+  },
+})
 
-// adb -s emulator-5554 reverse tcp:8000 tcp:8000
+export default DangerPost

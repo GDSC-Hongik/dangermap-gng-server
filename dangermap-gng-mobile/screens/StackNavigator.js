@@ -14,6 +14,7 @@ import DangerListScreen from './DangerListScreen'
 import DangerDetailScreen from './DangerDetailScreen'
 import Test from './Test'
 import LogoutScreen from './Logout'
+import DangerPost from './DangerPost'
 import {
   View,
   Text,
@@ -88,7 +89,7 @@ function App() {
         options={{title: '비밀번호 수정'}}
       />
       <Stack.Screen
-        name="DangerList"
+        name="DangerListScreen"
         component={DangerListScreen}
         options={{title: '위험 리스트'}}
       />
@@ -101,6 +102,11 @@ function App() {
         name="Logout"
         component={LogoutScreen}
         options={{title: '로그아웃'}}
+      />
+      <Stack.Screen
+        name="DangerPost"
+        component={DangerPost}
+        options={{title: '위험정보 등록'}}
       />
       <Stack.Screen name="Test" component={Test} options={{title: '테스트'}} />
     </Stack.Navigator>
