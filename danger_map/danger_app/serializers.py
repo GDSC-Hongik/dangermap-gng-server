@@ -34,7 +34,6 @@ class LikeAndDislikeSerializer(serializers.Serializer):
 class CommentSerializer(serializers.Serializer):
     user_email = serializers.CharField()
     comment = serializers.CharField()
-    date = serializers.DateTimeField()
 
 
 class MarkerSerializer(serializers.Serializer):
