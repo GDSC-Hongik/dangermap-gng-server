@@ -135,32 +135,6 @@ function MapScreen({navigation}) {
     )
   }
 
-  // useEffect(() => {
-  //   let isMounted = true
-
-  //   //useEffect를 사용하여 컴포넌트가 마운트될 때 위치 권한을 요청하고, 권한이 허가되면 현재 위치를 가져와 location 상태를 업데이트
-  //   requestPermission().then(result => {
-  //     if (isMounted) {
-  //       console.log({result})
-  //       if (result === 'granted') {
-  //         Geolocation.getCurrentPosition(
-  //           pos => {
-  //             setLocation(pos.coords)
-  //           },
-  //           error => {
-  //             console.log('오류', error)
-  //           },
-  //           {
-  //             enableHighAccuracy: true,
-  //             timeout: 5000,
-  //             maximumAge: 3600,
-  //           },
-  //         )
-  //       }
-  //     }
-  //   })
-  // }, [])
-
   if (!location) {
     return (
       // location이 없으면 "Splash Screen"을 표시
