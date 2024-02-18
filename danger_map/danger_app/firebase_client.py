@@ -1,10 +1,7 @@
 import firebase_admin
 from firebase_admin import firestore, auth
 from django.utils import timezone
-from datetime import datetime
-# import pytz
-
-# korea_timezone = pytz.timezone('Asia/Seoul')
+from datetime import timedelta
 
 class FirebaseClient:
 
@@ -56,7 +53,7 @@ class FirebaseClient:
         posts = []
         for doc in docs:
             post_data = doc.to_dict()
-            post_data["display_date"] = post_data["date"].strftime("%Y-%m-%d %H:%M")
+            post_data["display_date"] = (post_data["date"] + timedelta(hours=9)).strftime("%Y-%m-%d %H:%M")
             post_data["like"] = self.count_like(doc)
             post_data["dislike"] = self.count_dislike(doc)
             posts.append(post_data)
@@ -78,7 +75,7 @@ class FirebaseClient:
 
         data["date"] = timezone.now()
         data["marker_id"] = new_marker[1].id
-        self._post_collection.add(data)
+        self._post_collection.document((timezone.now()+timedelta(hours=9)).isoformat()).set(data)
 
 
     def delete_post(self, date):

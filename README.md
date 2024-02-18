@@ -22,7 +22,7 @@
 |`posts`|GET, POST|모든 게시물 리스트를 가져온다|
 |`posts/?date={date}`|GET, DELETE|DELETE요청 시 게시글 삭제|
 |`posts/email/?user_email={user_email}`|GET|해당 이메일로 작성된 모든 게시글을 가져온다.
-|`markers`|GET, POST|모든 마커 정보를 가져오고, 마커를 등록할 수 있다|게시글을 먼저 등록한 다음 위도, 경도, 위치 정보가 포함된 마커를 해당 링크로 전달해 등록한다.|
+|`markers`|GET|모든 마커 정보를 가져온다|게시글을 등록할 때 자동으로 추가된다.|
 |`posts/location/?latitude={latitude}&longitude={longitude}`|GET|위도, 경도값과 일치하는 게시물 리스트를 가져온다|
 |`posts/like/?date={date}`|GET, POST|작성날짜를 기준으로 게시글을 가져와 좋아요를 누른 사람을 조회하고, 좋아요를 추가할 수 있다.
 |`posts/dislike/?date={date}`|GET, POST|작성날짜를 기준으로 싫어요를 누른 사람을 조회하고, 싫어요를 추가할 수 있다.|비활성화
