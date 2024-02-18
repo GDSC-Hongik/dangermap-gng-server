@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import MyPage from './MyPage'
+import {Platform, PermissionsAndroid} from 'react-native'
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'
@@ -11,9 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import auth from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
 
-import Geolocation from "react-native-geolocation-service";
-import styled from "styled-components";
-import { Platform, PermissionsAndroid } from "react-native";
+import DangerListScreen from './DangerListScreen'
 
 import {
   View,
@@ -88,57 +86,69 @@ function MainScreen() {
   )
 }
 
-async function requestPermission() {  //사용자의 위치 정보 수집 권한을 요청
-  try {
-    if (Platform.OS === "ios") {
-      return await Geolocation.requestAuthorization("always");
-    }
-    // 안드로이드 위치 정보 수집 권한 요청
-    if (Platform.OS === "android") {
-      return await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-    }
-  } catch (e) {
-    console.log(e);
-  }
-}
+function MapScreen({navigation}) {
+  const [location, setLocation] = useState() //useState를 사용하여 location 상태를 관리
 
-function App() {
-  const [location, setLocation] = useState(); //useState를 사용하여 location 상태를 관리
-  useEffect(() => {       //useEffect를 사용하여 컴포넌트가 마운트될 때 위치 권한을 요청하고, 권한이 허가되면 현재 위치를 가져와 location 상태를 업데이트
-    requestPermission().then(result => {
-      console.log({ result });
-      if (result === "granted") {
-        Geolocation.getCurrentPosition(
-          pos => {
-            setLocation(pos.coords);
-          },
-          error => {
-            console.log(error);
-          },
+  async function requestPermission() {
+    // 사용자의 위치 정보 수집 권한을 요청
+    try {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
-            enableHighAccuracy: true,
-            timeout: 3600,
-            maximumAge: 3600,
+            title: '위치 정보 사용 권한 요청',
+            message: '위치 정보를 사용하여 지도를 표시합니다.',
+            buttonNeutral: '나중에',
+            buttonNegative: '거절',
+            buttonPositive: '수락',
           },
-        );
+        )
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getCurrentLocation()
+        } else {
+          console.log('위치 정보 사용 권한이 거부되었습니다.')
+        }
       }
-    });
-  }, []);
+    } catch (err) {
+      console.warn('여기 에러', err)
+    }
+  }
+
+  useEffect(() => {
+    requestPermission()
+  }, [])
+
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        })
+      },
+      error => {
+        console.warn('Error getting current location:', error)
+      },
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+    )
+  }
 
   if (!location) {
-    return ( // location이 없으면 "Splash Screen"을 표시
+    return (
+      // location이 없으면 "Splash Screen"을 표시
       <View>
         <Text>Splash Screen</Text>
       </View>
-    );
+    )
   }
 
-  return ( // 그렇지 않으면 MapView를 통해 현재 위치를 보여줌
+  return (
+    // 그렇지 않으면 MapView를 통해 현재 위치를 보여줌
     <>
       <View>
-        <Map
+        <MapView
           provider={PROVIDER_GOOGLE}
           initialRegion={{
             latitude: location.latitude,
@@ -149,71 +159,13 @@ function App() {
         />
       </View>
     </>
-  );
-}
-// 스타일드 컴포넌트를 사용하여 View, Text, Map 컴포넌트를 스타일링
-const View = styled.View`
-  flex: 1;
-`;
+  )
 
-const Text = styled.Text`
-  flex: 1;
-`;
-
-const Map = styled(MapView)`
-  flex: 1;
-`;
-
-//export default App;
-
-function MapScreen({navigation}) {
-  const [region, setRegion] = useState({
-    latitude: 51.5079145,
-    longitude: -0.0899163,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  })
-
-  const hongikRegion = {
-    latitude: 37.552635722509,
-    longitude: 126.92436042413,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  }
-
-  const [latitude, setLatitude] = useState(null)
-  const [longitude, setLogitude] = useState(null)
-
-  // const geoLocation = () => {
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       const latitude = JSON.stringify(position.coords.latitude);
-  //       const longitude = JSON.stringify(position.coords.longitude);
-
-  //       setLatitude(latitude);
-  //       setLogitude(longitude);
-  //     },
-  //     error => {
-  //       console.log(error.code, error.message);
-  //     },
-  //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-  //   );
-  // };
-
+  /*
   return (
     <View style={{flex: 1}}>
       <MapView
         style={{flex: 1}}
-        // annotations={markers}
-        // showsUserLocation={true}
-        // showsMyLocationButton={true}
-        // followsUserLocation={true}
-        // showsCompass={true}
-        // scrollEnabled={true}
-        // zoomEnabled={true}
-        // pitchEnabled={true}
-        // rotateEnabled={true}
-        onRegionChangeComplete={region => setRegion(region)}
         provider={PROVIDER_GOOGLE}
         minZoomLevel={10}
         initialRegion={{
@@ -222,7 +174,6 @@ function MapScreen({navigation}) {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}>
-        <Marker coordinate={hongikRegion} />
         <Marker
           coordinate={{
             latitude: 37.556944,
@@ -232,34 +183,36 @@ function MapScreen({navigation}) {
           }}
         />
       </MapView>
-      <Text style={styles.text}>Current latitude: {region.latitude}</Text>
-      <Text style={styles.text}>Current longitude: {region.longitude}</Text>
-      <View>
-        {/* <Text> latitude: {latitude} </Text>
-        <Text> longitude: {longitude} </Text> */}
-        {/* <TouchableOpacity
-        onPress={() => geoLocation()}
-        style={{backgroundColor: '#89B2E9'}}>
-        <Text style={{color: 'white', textAlign: 'center'}}>
-          Get GeoLocation Button
-        </Text>
-      </TouchableOpacity> */}
-      </View>
     </View>
   )
+  */
 }
 
 function HomeScreen({navigation}) {
-  function navigateToDangerList() {
-    navigation.navigate('DangerList')
+  const handleMapPress = () => {
+    // navigation.navigate('MapScreen')
   }
-  function navigateToTest() {
-    navigation.navigate('Test')
-  }
+
   return (
-    <View>
-      <Button title="위험리스트로 이동" onPress={navigateToDangerList} />
-      <Button title="Test" onPress={() => navigation.navigate('Test')} />
+    <View style={styles.container}>
+      <View style={styles.searchBar}>
+        <Text style={{color: 'black'}}>검색창</Text>
+      </View>
+      <View style={styles.content}>
+        <TouchableOpacity style={styles.map} onPress={() => handleMapPress()}>
+          <Text style={{color: 'black'}}>지도 보기</Text>
+          <MapScreen />
+        </TouchableOpacity>
+        <View style={styles.weather}>
+          <Text style={{color: 'black'}}>오늘의 날씨</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('DangerPost')}>
+          <Text>글쓰기</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.footer}>
+        <DangerListScreen />
+      </View>
     </View>
   )
 }
@@ -371,6 +324,37 @@ const styles = StyleSheet.create({
     marginLeft: 25,
     marginTop: 18,
     fontWeight: 'bold',
+  },
+  footer: {
+    height: '50%',
+    justifyContent: 'center',
+    margin: 10,
+    borderRadius: 5,
+  },
+  searchBar: {
+    flex: 1,
+    height: '10%',
+    margin: 10,
+    borderWidth: 2,
+    borderColor: '#326CF9',
+    borderRadius: 5,
+  },
+  content: {
+    height: '40%',
+  },
+  map: {
+    flex: 1,
+    margin: 10,
+    borderWidth: 2,
+    borderColor: '#326CF9',
+    borderRadius: 5,
+  },
+  weather: {
+    flex: 1,
+    margin: 10,
+    borderWidth: 2,
+    borderColor: '#326CF9',
+    borderRadius: 5,
   },
 })
 
