@@ -18,7 +18,6 @@ class PostSerializer(serializers.Serializer):
     content_pics = serializers.ListField(child=serializers.CharField(), min_length=1, max_length=3, allow_empty=True)
     danger_rate = serializers.IntegerField(max_value=100, min_value=0)
     danger_type = serializers.CharField()
-    date = serializers.DateTimeField()
     user_nickname = serializers.CharField()
     user_email = serializers.CharField()
     # 위치 정보

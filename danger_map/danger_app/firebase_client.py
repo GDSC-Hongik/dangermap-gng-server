@@ -66,11 +66,19 @@ class FirebaseClient:
     
     # post컬렉션에 새로운 문서 추가
     def create_post(self, data):
-        new_doc_ref = self._post_collection.add(data)
-        # date필드에 데이터 생성 시각을 대입
-        doc_id = new_doc_ref[1].id
-        update_data = {'date': timezone.now()}
-        self._post_collection.document(doc_id).update(update_data)
+        data["date"] = timezone.now()
+        new_doc = self._post_collection.add(data)
+        new_doc_id = new_doc[1].id
+
+        marker_data = {
+            "lat": data["lat"],
+            "lng": data["lng"]
+        }
+        new_marker = self._marker_collection.add(marker_data)
+        marker_ref = {'marker_id': new_marker[1].id}
+
+        post_ref = self._post_collection.document(new_doc_id)
+        post_ref.collection("marker").add(marker_ref)
 
 
     def get_post(self, danger_type):
