@@ -81,6 +81,22 @@ class FirebaseClient:
         self._post_collection.add(data)
 
 
+    def delete_post(self, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
+        if not docs:
+            return None
+        
+        doc = docs[0]
+        doc_ref = doc.reference
+
+        # marker 삭제
+        marker_id = doc.get("marker_id")
+        self._marker_collection.document(marker_id).delete()
+
+        # post 삭제
+        doc_ref.delete()
+
+
     def get_post(self, danger_type):
         docs = self._post_collection.where("danger_type", "==", danger_type).stream()
         if not docs:
@@ -107,6 +123,13 @@ class FirebaseClient:
         
     #     return {'date': post_dates}
     
+    def get_post_by_date(self, date):
+        docs = self._post_collection.where("date", "==", date).limit(1).get()
+        if not docs:
+            return None
+        
+        return [docs[0].to_dict()]
+
 
     def get_post_by_email(self, user_email):
         docs = self._post_collection.where("user_email", "==", user_email).stream()
@@ -268,7 +291,19 @@ class FirebaseClient:
             return []
 
         doc_reference = docs[0].reference
-        new_doc_ref = doc_reference.collection("comment").add(data)
-        doc_id = new_doc_ref[1].id
-        update_data = {'date': timezone.now()}
-        doc_reference.collection("comment").document(doc_id).update(update_data)
+        data["date"] = timezone.now()
+        doc_reference.collection("comment").add(data)
+
+
+    def get_comment(self, postdate, commentdate):
+        docs = self._post_collection.where("date", "==", postdate).limit(1).get()
+        if not docs:
+            # 해당하는 문서가 없을 경우 처리
+            return []
+        
+        doc_reference = docs[0].reference
+        comment_docs = doc_reference.collection("comment").where("date", "==", commentdate).limit(1).get()
+        if not comment_docs:
+            return []
+        
+        return [comment_docs[0].to_dict()]

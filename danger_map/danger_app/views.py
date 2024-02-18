@@ -39,6 +39,19 @@ def get_post_list(request):
             client.create_post(request.data)
             return Response(request.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET', 'DELETE'])
+def delete_post(request):
+    date_str = request.GET.get('date')
+    date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    if request.method == 'GET':
+        post = client.get_post_by_date(date)
+        return Response(post, status=status.HTTP_200_OK)
+
+    elif request.method == 'DELETE':
+        client.delete_post(date)
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -147,3 +160,13 @@ def add_comment(request):
             client.add_comment(request.data, date)
             return Response(request.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+def get_comment(request):
+    postdate_str = request.GET.get('postdate')
+    commentdate_str = request.GET.get('commentdate')
+    postdate = datetime.strptime(postdate_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    commentdate = datetime.strptime(commentdate_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    comment = client.get_comment(postdate, commentdate)
+    return Response(comment, status=status.HTTP_200_OK)
