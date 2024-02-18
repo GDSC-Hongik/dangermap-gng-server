@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import firestore, auth
 from django.utils import timezone
+from datetime import datetime
 # import pytz
 
 # korea_timezone = pytz.timezone('Asia/Seoul')
@@ -49,16 +50,19 @@ class FirebaseClient:
     def get_all_posts(self):
         docs = self._post_collection.stream()
 
-        if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return []
-        # like와 dislike는 해당 메서드를 호출할 때마다 갱신되어 출력되므로 따로 추가할 필요 없음
-        return [
-            {
-                **doc.to_dict(), 
-                "like":self.count_like(doc), 
-                "dislike":self.count_dislike(doc)
-            } for doc in docs]
+        posts = []
+        for doc in docs:
+            post_data = doc.to_dict()
+            timestamp = post_data["date"].strftime("%Y-%m-%d %H:%M")
+            post_data["date"] = timestamp
+            post_data["like"] = self.count_like(doc)
+            post_data["dislike"] = self.count_dislike(doc)
+            posts.append(post_data)
+
+        if not posts:
+            return None
+
+        return posts
     
     # post컬렉션에 새로운 문서 추가
     def create_post(self, data):
