@@ -62,21 +62,21 @@ pip install pytz    # 설치 보류
 
 #### post데이터 추가 시 주의사항
     {
-        "user_email": "ex01@gmail.com",
-        "date": "2024-02-13T22:53:17.298000Z",
-        "content": "content01",
-        "content_pics": ["pic_url/pic_url01", "pic_url/pic_url02"],
-        "user_nickname": "ex01",
-        "danger_type": "ice",
-        "lat": 53.42,
-        "lng": -32.112,
-        "location": "홍문관 앞",
-        "danger_rate": 50
+        "user_email": "ffff@gmail.com",
+        "content": "ffff",
+        "user_nickname": "ffff",
+        "content_pics": [
+            "fff/fff"
+        ],
+        "lat": 33.111,
+        "danger_type": "ffff",
+        "lng": -44.222,
+        "location": "ffff",
+        "danger_rate": "5"
     }
 위의 형식으로 POST하도록 한다.
-- date 필드 : 현재시간으로 대체되지만 timestamp형식에 맞는 값을 넣어야 한다.
-- like, dislike 필드 : GET요청을 통해 정보를 가져올 때마다 각각의 컬렉션에 들어있는 문서 개수를 카운트 해서 업데이트 된다.\
-또한 `posts/post_title/like`로 이동할 시 별도의 데이터 입력 없이 `POST`만 해도 임의의 데이터가 추가된다.
+- date 필드 : 데이터 등록 시점으로 채워진다.
+- like, dislike 필드 : GET요청을 통해 정보를 가져올 때마다 각각의 컬렉션에 들어있는 문서 개수를 카운트 해서 업데이트 된다.
 - danger_rate 필드 : integer필드로 큰따옴표 없이 0~100 사이의 숫자만 넣을 수 있도록 한다.
 - lat 필드 : -90 ~ 90 사이의 값
 - lng 필드 : -180 ~ 180 사이의 값
