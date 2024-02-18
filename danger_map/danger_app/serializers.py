@@ -40,4 +40,3 @@ class CommentSerializer(serializers.Serializer):
 class MarkerSerializer(serializers.Serializer):
     lat = serializers.FloatField()
     lng = serializers.FloatField()
-    location = serializers.CharField()
