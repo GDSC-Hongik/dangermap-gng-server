@@ -1,3 +1,29 @@
+const axios = require('axios');
+
+module.exports = async (req, res) => {
+  if (req.method === 'GET') {
+    const { latitude, longitude } = req.query;
+    if (!latitude || !longitude) {
+      res.statusCode = 400;
+      return res.json({ error: '정보가 없습니다.' });
+    }
+    try {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=ko&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`;
+      const { data } = await axios.get(url);
+      console.log(data);
+      return res.json(data);
+    } catch (error) {
+      res.statusCode = 404;
+      return res.end();
+    }
+  } else {
+    res.statusCode = 405;
+    return res.end();
+  }
+};
+
+
+
 export async function getDangerData() {
   const response = await fetch('http://127.0.0.1:8000/posts')
   const body = await response.json()
