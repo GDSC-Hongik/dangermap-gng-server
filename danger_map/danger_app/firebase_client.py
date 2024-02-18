@@ -14,6 +14,7 @@ class FirebaseClient:
         self._post_collection = self._db.collection("post")
         self._marker_collection = self._db.collection("marker")
 
+
     # post컬렉션 문서의 하위 컬렉션 like에 속한 문서의 개수를 리턴
     # = 해당 post의 좋아요 개수
     def count_like(self, doc):
@@ -22,6 +23,7 @@ class FirebaseClient:
         count = sum(1 for _ in like_docs)
         return count
     
+
     # post컬렉션 문서의 하위 컬렉션 dislike에 속한 문서의 개수를 리턴
     # = 해당 post의 싫어요 개수
     def count_dislike(self, doc):
@@ -30,23 +32,23 @@ class FirebaseClient:
         count = sum(1 for _ in dislike_docs)
         return count
 
+
     # user컬렉션의 모든 문서를 리턴
     def get_all_users(self):
         docs = self._user_collection.stream()
         if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return []
+            return None
         return (doc.to_dict() for doc in docs)
+
 
     # user의 email을 통해 특정 유저의 문서를 리턴
     def get_user(self, email):
         doc = self._user_collection.where("email", "==", email).get()
         if not doc:
-            # 해당하는 문서가 없을 경우 처리
-            return []
-        
+            return None   
         return doc
     
+
     # post컬렉션의 모든 문서를 리턴
     def get_all_posts(self):
         docs = self._post_collection.stream()
@@ -64,28 +66,25 @@ class FirebaseClient:
 
         return posts
     
+
     # post컬렉션에 새로운 문서 추가
     def create_post(self, data):
-        data["date"] = timezone.now()
-        new_doc = self._post_collection.add(data)
-        new_doc_id = new_doc[1].id
-
+        # 마커 추가
         marker_data = {
             "lat": data["lat"],
             "lng": data["lng"]
         }
         new_marker = self._marker_collection.add(marker_data)
-        marker_ref = {'marker_id': new_marker[1].id}
 
-        post_ref = self._post_collection.document(new_doc_id)
-        post_ref.collection("marker").add(marker_ref)
+        data["date"] = timezone.now()
+        data["marker_id"] = new_marker[1].id
+        self._post_collection.add(data)
 
 
     def get_post(self, danger_type):
         docs = self._post_collection.where("danger_type", "==", danger_type).stream()
         if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return []
+            return None
         
         return [
             {
@@ -95,24 +94,24 @@ class FirebaseClient:
             } for doc in docs]
     
     
-    def get_post_dates_by_email(self, user_email):
-        docs = self._post_collection.where("user_email", "==", user_email).stream()
-        if not docs:
-            return []
+    # def get_post_dates_by_email(self, user_email):
+    #     docs = self._post_collection.where("user_email", "==", user_email).stream()
+    #     if not docs:
+    #         return []
         
-        post_dates = []
-        for doc in docs:
-            post_data = doc.to_dict()
-            if 'date' in post_data:
-                post_dates.append(post_data['date'])
+    #     post_dates = []
+    #     for doc in docs:
+    #         post_data = doc.to_dict()
+    #         if 'date' in post_data:
+    #             post_dates.append(post_data['date'])
         
-        return {'date': post_dates}
+    #     return {'date': post_dates}
     
 
     def get_post_by_email(self, user_email):
         docs = self._post_collection.where("user_email", "==", user_email).stream()
         if not docs:
-            return []
+            return None
         
         return [
             {
@@ -135,16 +134,6 @@ class FirebaseClient:
         markers = self._marker_collection.stream()
 
         return [marker.to_dict() for marker in markers]
-    
-
-    def create_marker(self, data): # 게시글을 생성 한 후 마커를 생성해야 함
-        new_marker = self._marker_collection.add(data)
-        marker_ref = {'marker_id': new_marker[1].id}
-        docs = self._post_collection.where("lat", "==", data["lat"]).where("lng", "==", data["lng"]).stream()
-
-        for doc in docs:
-            doc_ref = doc.reference
-            doc_ref.collection("marker").add(marker_ref)
 
 
     # 유저 프로필 처리
@@ -238,11 +227,16 @@ class FirebaseClient:
     def add_like(self, data, date):
         docs = self._post_collection.where("date", "==", date).limit(1).get()
         if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return []
+            return None
         
         doc_reference = docs[0].reference
-        doc_reference.collection("like").add(data)
+        user_email = data["user_email"]
+        like = doc_reference.collection("like").where("user_email", "==", user_email).stream()
+        like_list=list(like)
+        if like_list:
+            doc_reference.collection("like").document(like_list[0].id).delete()
+        else:
+            doc_reference.collection("like").document(user_email).set(data)
     
 
     def add_dislike(self, data, date):

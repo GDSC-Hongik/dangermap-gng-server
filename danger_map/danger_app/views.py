@@ -45,7 +45,6 @@ def get_post_list(request):
 def get_post(request, type):
     posts = client.get_post(danger_type=type)
     if posts:
-        # serializer=PostSerializer(posts, many=True)
         return Response(posts, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -73,7 +72,7 @@ def get_post_by_coord(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def get_marker(request):
     if request.method == 'GET':
         posts = client.get_all_markers()
@@ -81,13 +80,6 @@ def get_marker(request):
             return Response(posts, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
-    elif request.method == 'POST':
-        serializer = MarkerSerializer(data=request.data)
-        if serializer.is_valid():
-            client.create_marker(request.data)
-            return Response(request.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 # like and dislike

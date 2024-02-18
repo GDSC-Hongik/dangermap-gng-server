@@ -5,7 +5,7 @@ urlpatterns = [
     # user 컬렉션 기반
     path('users', get_user_list),
     path('users/<str:pk>', get_user), # user_email을 pk로 받음
-    path('users/profile-pic/<str:pk>/<str:url>', user_profile_pic), # user_email을 pk로 받고 profile_pic url을 url로 받음
+    # path('users/profile-pic/<str:pk>/<str:url>', user_profile_pic), # user_email을 pk로 받고 profile_pic url을 url로 받음
 
     # post 컬렉션 기반
     path('posts', get_post_list),
