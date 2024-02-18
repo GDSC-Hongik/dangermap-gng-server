@@ -53,8 +53,7 @@ class FirebaseClient:
         posts = []
         for doc in docs:
             post_data = doc.to_dict()
-            timestamp = post_data["date"].strftime("%Y-%m-%d %H:%M")
-            post_data["date"] = timestamp
+            post_data["display_date"] = post_data["date"].strftime("%Y-%m-%d %H:%M")
             post_data["like"] = self.count_like(doc)
             post_data["dislike"] = self.count_dislike(doc)
             posts.append(post_data)
