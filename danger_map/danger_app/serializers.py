@@ -22,7 +22,6 @@ class PostSerializer(serializers.Serializer):
     user_nickname = serializers.CharField()
     user_email = serializers.CharField()
     # 위치 정보
-    location = serializers.CharField()
     lat = serializers.FloatField()
     lng = serializers.FloatField()
 
@@ -37,3 +36,9 @@ class CommentSerializer(serializers.Serializer):
     user_email = serializers.CharField()
     comment = serializers.CharField()
     date = serializers.DateTimeField()
+
+
+class MarkerSerializer(serializers.Serializer):
+    lat = serializers.FloatField()
+    lng = serializers.FloatField()
+    location = serializers.CharField()

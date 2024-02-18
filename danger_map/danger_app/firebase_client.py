@@ -12,6 +12,7 @@ class FirebaseClient:
         self._db = firestore.client()
         self._user_collection = self._db.collection("user")
         self._post_collection = self._db.collection("post")
+        self._marker_collection = self._db.collection("marker")
 
     # post컬렉션 문서의 하위 컬렉션 like에 속한 문서의 개수를 리턴
     # = 해당 post의 좋아요 개수
@@ -112,6 +113,31 @@ class FirebaseClient:
                 "dislike":self.count_dislike(doc)
             } for doc in docs]
     
+
+    def get_post_by_coord(self, lat, lng):
+        docs = self._post_collection.where("lat", "==", lat).where("lng", "==", lng).stream()
+        
+        if not docs:
+            return None
+        
+        return [doc.to_dict() for doc in docs]
+    
+
+    def get_all_markers(self):
+        markers = self._marker_collection.stream()
+
+        return [marker.to_dict() for marker in markers]
+    
+
+    def create_marker(self, data): # 게시글을 생성 한 후 마커를 생성해야 함
+        new_marker = self._marker_collection.add(data)
+        marker_ref = {'marker_id': new_marker[1].id}
+        docs = self._post_collection.where("lat", "==", data["lat"]).where("lng", "==", data["lng"]).stream()
+
+        for doc in docs:
+            doc_ref = doc.reference
+            doc_ref.collection("marker").add(marker_ref)
+
 
     # 유저 프로필 처리
     def get_profile_pic(self, user_email):

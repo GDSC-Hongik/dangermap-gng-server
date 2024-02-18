@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .firebase_client import FirebaseClient
 from .storage_bucket import StorageBucket
-from .serializers import UserSerializer, PostSerializer, LikeAndDislikeSerializer, CommentSerializer
+from .serializers import UserSerializer, PostSerializer, LikeAndDislikeSerializer, CommentSerializer, MarkerSerializer
 from datetime import datetime
 
 client = FirebaseClient()
@@ -61,7 +61,35 @@ def get_post_by_email(request):
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
+
+@api_view(['GET'])
+def get_post_by_coord(request):
+    lat = float(request.GET.get('latitude'))
+    lng = float(request.GET.get('longitude'))
+    posts = client.get_post_by_coord(lat, lng)
+    if posts:
+        return Response(posts, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET', 'POST'])
+def get_marker(request):
+    if request.method == 'GET':
+        posts = client.get_all_markers()
+        if posts:
+            return Response(posts, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    elif request.method == 'POST':
+        serializer = MarkerSerializer(data=request.data)
+        if serializer.is_valid():
+            client.create_marker(request.data)
+            return Response(request.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
 # like and dislike
 @api_view(['GET', 'POST'])
 def add_like(request):
