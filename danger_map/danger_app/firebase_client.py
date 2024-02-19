@@ -40,10 +40,12 @@ class FirebaseClient:
 
     # user의 email을 통해 특정 유저의 문서를 리턴
     def get_user(self, email):
-        doc = self._user_collection.where("email", "==", email).get()
-        if not doc:
+        docs = self._user_collection.where("email", "==", email).get()
+        if not docs:
             return None   
-        return doc
+
+        user_docs = [doc.to_dict() for doc in docs]
+        return user_docs
     
 
     # post컬렉션의 모든 문서를 리턴
@@ -94,7 +96,7 @@ class FirebaseClient:
         doc_ref.delete()
 
 
-    def get_post(self, danger_type):
+    def get_post_by_dangertype(self, danger_type):
         docs = self._post_collection.where("danger_type", "==", danger_type).stream()
         if not docs:
             return None
@@ -156,61 +158,11 @@ class FirebaseClient:
         return [marker.to_dict() for marker in markers]
 
 
-    # 유저 프로필 처리
-    def get_profile_pic(self, user_email):
-        docs = self._user_collection.where("email", "==", user_email).limit(1).get()
-        if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return None
-        
-        doc_id = None
-        for doc in docs:
-            return doc.get("profile_pic")
-
-
-    def patch_profile_pic(self, user_email, pic_url):
-        docs = self._user_collection.where("email", "==", user_email).limit(1).get()
-
-        if not docs:
-            # 해당하는 문서가 없을 경우 처리
-            return None
-        
-        doc_id = None
-        for doc in docs:
-            doc_id = doc.id
-
-            new_doc_ref = self._user_collection.add({
-                'email': doc.get('email'),
-                'nickname': doc.get('nickname'),
-                'profile_pic': pic_url
-            })
-        new_doc_id = new_doc_ref.id
-        
-        if doc_id:
-            self._user_collection.document(doc_id).delete()
-
-
-    def update_user_profile_pic(uid, new_pic):
-        try:
-            # 사용자 정보 가져오기
-            user = auth.get_user(uid)
-            
-            # 새 이메일로 사용자 업데이트
-            updated_user = auth.update_user(
-                user.uid,
-                profile_pic=new_pic
-            )
-            
-            print('User email updated successfully:', updated_user.email)
-        except auth.AuthError as e:
-            print('Error updating user email:', e)
-
-        
+    # 유저 프로필 처리  
     def delete_user_profile(self, user_email):
         docs = self._user_collection.where("email", "==", user_email).limit(1).get()
 
         if not docs:
-            # 해당하는 문서가 없을 경우 처리
             return None
         
         doc_id = None

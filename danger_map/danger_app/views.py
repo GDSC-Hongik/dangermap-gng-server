@@ -3,30 +3,38 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .firebase_client import FirebaseClient
 from .storage_bucket import StorageBucket
-from .serializers import UserSerializer, PostSerializer, LikeAndDislikeSerializer, CommentSerializer, MarkerSerializer
+from .serializers import PostSerializer, LikeAndDislikeSerializer, CommentSerializer
 from datetime import datetime
 
 client = FirebaseClient()
 bucket = StorageBucket()
 
-# root = user collection
+# user
 @api_view(['GET'])
 def get_user_list(request):
     users = client.get_all_users()
     return Response(users, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'DELETE'])
 def get_user(request, pk):
     doc = client.get_user(email=pk)
-    if doc:
-        user=doc[0].to_dict()
-        return Response(user, status=status.HTTP_200_OK)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        if doc:
+            return Response(doc, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    elif request.method == 'DELETE':
+        if doc:
+            client.delete_user_profile(pk)
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
     
 
-# root = post collection
+# post
 @api_view(['GET', 'POST'])
 def get_post_list(request):
     if request.method == 'GET':
@@ -56,7 +64,7 @@ def delete_post(request):
 
 @api_view(['GET'])
 def get_post(request, type):
-    posts = client.get_post(danger_type=type)
+    posts = client.get_post_by_dangertype(danger_type=type)
     if posts:
         return Response(posts, status=status.HTTP_200_OK)
     else:
@@ -126,23 +134,6 @@ def add_dislike(request):
             client.add_dislike(request.data, date)
             return Response(request.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-
-# user profile
-@api_view(['PATCH', 'DELETE'])
-def user_profile_pic(request, pk, pic_url):
-    if request.method == 'PATCH':
-        old_pic = client.get_profile_pic(pk)
-        client.update_user_profile_pic(pk, pic_url)
-        # client.patch_profile_pic(pk, pic_url)
-        bucket.delete_file(old_pic)
-        return Response(status=status.HTTP_200_OK)
-
-    if request.method == 'DELETE':
-        old_pic = client.get_profile_pic(pk)
-        bucket.delete_file(old_pic)
-        client.delete_user_profile(pk)
-        return Response(status=status.HTTP_200_OK)
     
 
 # comment
