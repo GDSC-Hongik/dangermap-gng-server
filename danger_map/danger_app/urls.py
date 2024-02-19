@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import get_user_list, get_user, get_post_list, delete_post, get_post_by_coord, get_marker, get_post, get_post_by_email, add_like, add_dislike, add_comment, get_comment
+from .views import get_user_list, get_user, get_user_post_list, get_post_list, delete_post, get_post_by_coord, get_marker, get_post, get_post_by_email, add_like, add_dislike, add_comment, get_comment
 
 urlpatterns = [
     # user 컬렉션 기반
     path('users', get_user_list),
     path('users/<str:pk>', get_user), # user_email을 pk로 받음
+    path('users/<str:pk>/posts', get_user_post_list),
 
     # post 컬렉션 기반
     path('posts', get_post_list),

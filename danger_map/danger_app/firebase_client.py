@@ -48,6 +48,27 @@ class FirebaseClient:
         return user_docs
     
 
+    # 특정 유저가 작성한 게시글 리턴
+    def get_all_user_posts(self, email):
+        docs = self._user_collection.where("email", "==", email).get()
+
+        user_posts = []
+        for doc in docs:
+            doc_ref = doc.reference
+            posts = doc_ref.collection("post").get()
+            for post in posts:
+                post_data = post.to_dict()
+                post_data["display_date"] = (post_data["date"] + timedelta(hours=9)).strftime("%Y-%m-%d %H:%M")
+                post_data["like"] = self.count_like(doc)
+                post_data["dislike"] = self.count_dislike(doc)
+                user_posts.append(post_data)
+
+        if not user_posts:
+            return None
+
+        return user_posts
+    
+
     # post컬렉션의 모든 문서를 리턴
     def get_all_posts(self):
         docs = self._post_collection.stream()
@@ -77,7 +98,13 @@ class FirebaseClient:
 
         data["date"] = timezone.now()
         data["marker_id"] = new_marker[1].id
-        self._post_collection.document((timezone.now()+timedelta(hours=9)).isoformat()).set(data)
+        new_post = self._post_collection.document((timezone.now()+timedelta(hours=9)).isoformat()).set(data)
+        
+        # 유저 내 post컬렉션에 추가
+        docs = self._user_collection.where("email", "==", data["user_email"]).get()
+        for doc in docs:
+            doc_ref = doc.reference
+            doc_ref.collection("post").add(data)
 
 
     def delete_post(self, date):
@@ -172,7 +199,7 @@ class FirebaseClient:
             self._post_collection.document(post.id).delete()
 
         # 유저 정보 삭제
-        docs = self._user_collection.where("email", "==", user_email).limit(1).get  ()
+        docs = self._user_collection.where("email", "==", user_email).limit(1).get()
         
         if not docs:
             return None

@@ -32,6 +32,11 @@ def get_user(request, pk):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+
+@api_view(['GET'])
+def get_user_post_list(request, pk):
+    posts = client.get_all_user_posts(pk)
+    return Response(posts, status=status.HTTP_200_OK)
     
 
 # post

@@ -18,6 +18,7 @@
 |---|-----------|----|----|
 |`users`|GET|모든 유저 리스트를 가져온다|
 |`users/<user_email>`|GET, DELETE|해당 이메일을 가진 유저를 가져온다|user는 이메일이 pk로 쓰임|
+|`users/<user_email>/posts`|GET|해당 유저가 작성한 게시글들을 가져온다|user는 이메일이 pk로 쓰임|
 |`posts`|GET, POST|모든 게시물 리스트를 가져온다|
 |`posts/<str:type>`|GET|위험 종류에 따른 게시물을 가져온다
 |`posts/?date={date}`|GET, DELETE|DELETE요청 시 게시글 삭제|
@@ -61,7 +62,8 @@ pip install pytz    # 설치 보류
 모든 값은 하드코딩된 값이며, 실제론 프론트에서 값을 가져온다.
 1. `posts`
     ```json
-        { // POST요청 시 포맷
+        // POST요청 시 포맷
+        {
             "user_email": "ffff@gmail.com",
             "content": "ffff",
             "user_nickname": "ffff",
@@ -102,13 +104,15 @@ pip install pytz    # 설치 보류
 
 2. `posts/like/?date={date}`
     ```json
-        { // POST요청 시 포맷, 실제 저장되는 값
+        // POST요청 시 포맷, 실제 저장되는 값
+        { 
             "user_email": "ff@gmail.com"
         }
     ```
 3. `posts/comment/?date={date}`
     ```json
-        { // POST요청 시 포맷
+        // POST요청 시 포맷
+        { 
             "user_email": "ff@gmail.com",
             "comment": "댓글"
         }
