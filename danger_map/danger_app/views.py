@@ -27,7 +27,7 @@ def get_user(request, pk):
         
     elif request.method == 'DELETE':
         if doc:
-            client.delete_user_profile(pk)
+            client.delete_user(pk)
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)

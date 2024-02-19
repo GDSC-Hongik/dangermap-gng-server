@@ -159,18 +159,30 @@ class FirebaseClient:
 
 
     # 유저 프로필 처리  
-    def delete_user_profile(self, user_email):
-        docs = self._user_collection.where("email", "==", user_email).limit(1).get()
+    def delete_user(self, user_email):
+        # 해당 유저가 작성한 모든 게시글 삭제
+        posts = self._post_collection.where("user_email", "==", user_email).get()
 
+        if not posts:
+            return None
+        
+        for post in posts:
+            marker_id = post.get("marker_id")
+            self._marker_collection.document(marker_id).delete()
+            self._post_collection.document(post.id).delete()
+
+        # 유저 정보 삭제
+        docs = self._user_collection.where("email", "==", user_email).limit(1).get  ()
+        
         if not docs:
             return None
         
-        doc_id = None
         for doc in docs:
             doc_id = doc.id
 
         if doc_id:
             self._user_collection.document(doc_id).delete()
+        
 
 
 # 좋아요, 싫어요 기능
