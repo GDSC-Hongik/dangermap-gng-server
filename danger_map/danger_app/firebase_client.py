@@ -115,6 +115,18 @@ class FirebaseClient:
         doc = docs[0]
         doc_ref = doc.reference
 
+        # comment 삭제
+        comments = doc_ref.collection("comment").stream()
+        for comment in comments:
+            comment_ref = comment.reference
+            comment_ref.delete()
+
+        # like 삭제
+        likes = doc_ref.collection("like").stream()
+        for like in likes:
+            like_ref = like.reference
+            like_ref.delete()
+
         # marker 삭제
         marker_id = doc.get("marker_id")
         self._marker_collection.document(marker_id).delete()
@@ -196,6 +208,15 @@ class FirebaseClient:
         for post in posts:
             marker_id = post.get("marker_id")
             self._marker_collection.document(marker_id).delete()
+
+            comments = self._post_collection.document(post.id).collection("comment").get()
+            for comment in comments:
+                comment.reference.delete()
+
+            likes = self._post_collection.document(post.id).collection("like").get()
+            for like in likes:
+                like.reference.delete()
+
             self._post_collection.document(post.id).delete()
 
         # 유저 정보 삭제
@@ -208,6 +229,9 @@ class FirebaseClient:
             doc_id = doc.id
 
         if doc_id:
+            posts = doc.reference.collection("post").get()
+            for post in posts:
+                post.reference.delete()
             self._user_collection.document(doc_id).delete()
         
 
