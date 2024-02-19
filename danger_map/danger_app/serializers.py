@@ -14,12 +14,12 @@ class UserSerializer(serializers.Serializer):
 # storage연동 후 content_pic URLField로 바꿔야 함
 # user_email에 관한 유효성 검사 추가?
 class PostSerializer(serializers.Serializer):
+    user_email = serializers.CharField()
     content = serializers.CharField()
+    user_nickname = serializers.CharField()
     content_pics = serializers.ListField(child=serializers.CharField(), min_length=1, max_length=3, allow_empty=True)
     danger_rate = serializers.IntegerField(max_value=100, min_value=0)
     danger_type = serializers.CharField()
-    user_nickname = serializers.CharField()
-    user_email = serializers.CharField()
     # 위치 정보
     lat = serializers.FloatField()
     lng = serializers.FloatField()
@@ -34,8 +34,3 @@ class LikeAndDislikeSerializer(serializers.Serializer):
 class CommentSerializer(serializers.Serializer):
     user_email = serializers.CharField()
     comment = serializers.CharField()
-
-
-class MarkerSerializer(serializers.Serializer):
-    lat = serializers.FloatField()
-    lng = serializers.FloatField()
